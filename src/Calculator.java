@@ -18,12 +18,15 @@ public class Calculator {
         else if (expression.contains("*")) expression = expression.replace("*", " * ");
         else if (expression.contains("/")) expression = expression.replace("/", " / ");
 
+        //Замена запятой на точку, если таковая есть в выражении
         if (expression.contains(",")) expression = expression.replace(",", ".");
 
+        //Разбиваем выражение на "число" "знак" "число"
         String finalExpression[] = expression.split(" ");
 
         String sign = finalExpression[1];
 
+        //Выполняем операцию с числами
         System.out.print("Результат: ");
         if (sign.equals("+")) {
             double result = Double.parseDouble(finalExpression[0]) + Double.parseDouble(finalExpression[2]);
