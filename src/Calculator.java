@@ -4,12 +4,15 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 
 public class Calculator {
+
+    private double result = 0;
+
     /**
      * Метод для запуска программы "Калькулятор"
      */
     public void startCalculator() throws IOException {
         BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
-        System.out.println("Введите выражение из 2х чисел: ");
+        System.out.println("Введите выражение: ");
         String expression = reader.readLine();
 
         calculate(expression);
@@ -24,6 +27,8 @@ public class Calculator {
         if (expression.contains("-")) expression = expression.replace("-", " - ");
         if (expression.contains("*")) expression = expression.replace("*", " * ");
         if (expression.contains("/")) expression = expression.replace("/", " / ");
+        if (expression.contains("(")) expression = expression.replace("(", " ( ");
+        if (expression.contains(")")) expression = expression.replace(")", " ) ");
 
         //Замена запятой на точку, если таковая есть в выражении
         if (expression.contains(",")) expression = expression.replace(",", ".");
@@ -31,12 +36,57 @@ public class Calculator {
         //Разбиваем выражение на числа и знаки
         String finalExpression[] = expression.split(" ");
         for (String element : finalExpression) {
-            list.add(element);
+            if(!element.equals("")) list.add(element);
         }
 
         System.out.print("Результат: ");
-        double result = 0;
+        ArrayList<String> secondExpression = new ArrayList<>();
 
+        while (true) {
+            int startPoint = 0;
+            int endPoint = 0;
+            if (list.contains("(")) {
+                for (int i = 0; i < list.size(); i++) {
+                    if (list.get(i).equals("(")) {
+                        startPoint = i;
+                        //Записываем в вспомогательный список выражение в скобках
+                        for (int j = i + 1; j < list.size(); j++) {
+                            if (!list.get(j).equals(")")) {
+                                secondExpression.add(list.get(j));
+                            } else if (list.get(j).equals(")")) {
+                                endPoint = j;
+                                operations(secondExpression);
+                                break;
+                            }
+                        }
+                        //Удаляем из списка выражение в скобках
+                        for (int k = endPoint; k < list.size(); k--) {
+                            if (k >= startPoint) {
+                                list.remove(k);
+                                if (k == startPoint) break;
+                            }
+                        }
+                        //Добавляем в скобки результат вычисления
+                        list.add(i, String.valueOf(result));
+                        if(i != 0) {
+                            if(!list.get(i-1).equals("+") && !list.get(i-1).equals("-") && !list.get(i-1).equals("*") && !list.get(i-1).equals("/"))
+                                list.add(i, "*");
+                        }
+                    }
+                }
+                operations(list);
+            }
+            else {
+                operations(list);
+            }
+           break;
+        }
+
+        System.out.printf("%.3f", result);
+        System.out.println();
+    }
+
+    public void operations(ArrayList<String> list) {
         while (true) {
             if (list.contains("*") || list.contains("/")) {
                 for (int i = 0; i < list.size(); i++) {
@@ -69,6 +119,7 @@ public class Calculator {
                         list.remove(i);
                         list.remove(i - 1);
                         list.add(i - 1, String.valueOf(result));
+                        break;
                     }
                     if (list.get(i).equals("-")) {
                         result = Double.parseDouble(list.get(i - 1)) - Double.parseDouble(list.get(i + 1));
@@ -76,10 +127,10 @@ public class Calculator {
                         list.remove(i);
                         list.remove(i - 1);
                         list.add(i - 1, String.valueOf(result));
+                        break;
                     }
                 }
             } else break;
         }
-        System.out.printf("%.3f", result);
     }
 }
