@@ -1,6 +1,7 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 
 public class Calculator {
     /**
@@ -10,36 +11,75 @@ public class Calculator {
         BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
         System.out.println("Введите выражение из 2х чисел: ");
         String expression = reader.readLine();
-        /*
-        Проверяем, если выражение написано слитно, то разделяем числа от знака пробелом.
-         */
+
+        calculate(expression);
+
+    }
+
+    public void calculate(String expression) {
+        ArrayList<String> list = new ArrayList<>();
+
+        //Проверяем, если выражение написано слитно, то разделяем числа от знака пробелом.
         if (expression.contains("+")) expression = expression.replace("+", " + ");
-        else if (expression.contains("-")) expression = expression.replace("-", " - ");
-        else if (expression.contains("*")) expression = expression.replace("*", " * ");
-        else if (expression.contains("/")) expression = expression.replace("/", " / ");
+        if (expression.contains("-")) expression = expression.replace("-", " - ");
+        if (expression.contains("*")) expression = expression.replace("*", " * ");
+        if (expression.contains("/")) expression = expression.replace("/", " / ");
 
         //Замена запятой на точку, если таковая есть в выражении
         if (expression.contains(",")) expression = expression.replace(",", ".");
 
-        //Разбиваем выражение на "число" "знак" "число"
+        //Разбиваем выражение на числа и знаки
         String finalExpression[] = expression.split(" ");
-
-        String sign = finalExpression[1];
-
-        //Выполняем операцию с числами
-        System.out.print("Результат: ");
-        if (sign.equals("+")) {
-            double result = Double.parseDouble(finalExpression[0]) + Double.parseDouble(finalExpression[2]);
-            System.out.printf("%.3f", result);
-        } else if (sign.equals("-")) {
-            double result = Double.parseDouble(finalExpression[0]) - Double.parseDouble(finalExpression[2]);
-            System.out.printf("%.3f", result);
-        } else if (sign.equals("*")) {
-            double result = Double.parseDouble(finalExpression[0]) * Double.parseDouble(finalExpression[2]);
-            System.out.printf("%.3f", result);
-        } else if (sign.equals("/")) {
-            double result = Double.parseDouble(finalExpression[0]) / Double.parseDouble(finalExpression[2]);
-            System.out.printf("%.3f", result);
+        for (String element : finalExpression) {
+            list.add(element);
         }
+
+        System.out.print("Результат: ");
+        double result = 0;
+
+        while (true) {
+            if (list.contains("*") || list.contains("/")) {
+                for (int i = 0; i < list.size(); i++) {
+
+                    if (list.get(i).equals("*")) {
+                        result = Double.parseDouble(list.get(i - 1)) * Double.parseDouble(list.get(i + 1));
+                        list.remove(i + 1);
+                        list.remove(i);
+                        list.remove(i - 1);
+                        list.add(i - 1, String.valueOf(result));
+                        break;
+                    }
+                    if (list.get(i).equals("/")) {
+                        result = Double.parseDouble(list.get(i - 1)) / Double.parseDouble(list.get(i + 1));
+                        list.remove(i + 1);
+                        list.remove(i);
+                        list.remove(i - 1);
+                        list.add(i - 1, String.valueOf(result));
+                        break;
+                    }
+                }
+            } else break;
+        }
+        while (true) {
+            if (list.contains("+") || list.contains("-")) {
+                for (int i = 0; i < list.size(); i++) {
+                    if (list.get(i).equals("+")) {
+                        result = Double.parseDouble(list.get(i - 1)) + Double.parseDouble(list.get(i + 1));
+                        list.remove(i + 1);
+                        list.remove(i);
+                        list.remove(i - 1);
+                        list.add(i - 1, String.valueOf(result));
+                    }
+                    if (list.get(i).equals("-")) {
+                        result = Double.parseDouble(list.get(i - 1)) - Double.parseDouble(list.get(i + 1));
+                        list.remove(i + 1);
+                        list.remove(i);
+                        list.remove(i - 1);
+                        list.add(i - 1, String.valueOf(result));
+                    }
+                }
+            } else break;
+        }
+        System.out.printf("%.3f", result);
     }
 }
